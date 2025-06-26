@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { readdirSync, existsSync, mkdirSync } from "fs";
+import { readdirSync, existsSync, mkdirSync, rmSync } from "fs";
 import { join, basename } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
 import { callLLM } from "./llmClients";
@@ -74,13 +74,17 @@ export async function generateSyntheticUserPrompts(
       return false;
     }
 
-    // Create output directory if it doesn't exist
-    if (!existsSync(syntheticPromptsDir)) {
-      mkdirSync(syntheticPromptsDir, { recursive: true });
+    // Clear and create output directory
+    if (existsSync(syntheticPromptsDir)) {
+      rmSync(syntheticPromptsDir, { recursive: true, force: true });
       logger.info(
-        `Created synthetic user prompts directory: ${syntheticPromptsDir}`
+        `Cleared synthetic user prompts directory: ${syntheticPromptsDir}`
       );
     }
+    mkdirSync(syntheticPromptsDir, { recursive: true });
+    logger.info(
+      `Created synthetic user prompts directory: ${syntheticPromptsDir}`
+    );
 
     // Read the rules_all content
     const rulesAllContent = readTextFile(rulesAllFile);
