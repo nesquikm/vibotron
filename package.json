@@ -1,6 +1,9 @@
 {
   "name": "vibotron",
   "packageManager": "yarn@4.5.2",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
   "dependencies": {
     "commander": "^14.0.0",
     "openai": "^5.7.0",
