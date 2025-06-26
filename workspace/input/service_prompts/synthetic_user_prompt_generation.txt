@@ -1,2 +1,16 @@
-Based on rules: <rules_all>{rules_all}</rules_all> create a verification prompt on behalf of the user to evaluate <rule>{rule}</rule>
+Based on rules:
+
+<rules_all>
+{rules_all}
+</rules_all>
+
+create a verification prompt on behalf of the user to evaluate
+<rule>
+{rule}
+</rule>
+
+The verification prompt should be in the user's preferred language.
+
+The verification prompt should be a single question or statement that can be answered with a short response.
+
 The output should be a user prompt, nothing else.

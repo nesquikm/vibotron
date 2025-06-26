@@ -326,11 +326,9 @@ function generateRulesPermutations(
         .filter(Boolean)
         .join("\n");
 
-      // Combine content with inline comments
+      // Combine content with inline comments (excluding common rules)
       const contentParts = [
         sources,
-        `// Common rules from: ${commonRules.source}`,
-        commonRules.content,
         rule.source !== "none" ? `// Rule from: ${rule.source}` : null,
         rule.source !== "none" ? rule.content : null,
         ...flavorCombo.flatMap((flavor) => [
