@@ -1,0 +1,5 @@
+You should evaluate the LLM response <response>{response}</response> generated for user prompt <user_prompt>{user_prompt}</user_prompt> based on rules:
+<rules_all>{rules_all}</rules_all>.
+Answer should be <correct/> or, if not, make a recommendation on how to change the system prompt for the LLM.
+Add a mention of the rule <rule>{rule}</rule> that the LLM response doesn't meet.
+

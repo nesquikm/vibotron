@@ -4,8 +4,7 @@
   },
   "service_prompts": {
     "synthetic_user_prompt_generation": "./workspace/input/service_prompts/synthetic_user_prompt_generation.txt",
-    "evaluation": "./workspace/input/service_prompts/evaluation.txt",
-    "correction": "./workspace/input/service_prompts/correction.txt",
+    "evaluation_correction": "./workspace/input/service_prompts/evaluation_correction.txt",
     "target_system_prompt_generation": "./workspace/input/service_prompts/target_system_prompt_generation.txt"
   },
   "input": {
