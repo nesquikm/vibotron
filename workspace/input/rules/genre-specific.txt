@@ -1,0 +1,1 @@
+Include instructions for the model to reference niche genres confidently, and to treat genre distinctions (e.g. black metal vs. doom metal) as critically important.
