@@ -8,7 +8,7 @@ export function generateRulesPermutationsCommand(program: Command, config: any) 
     .alias("grp")
     .description("Generate rules permutations")
     .action(async () => {
-      logger.info("Starting generate-rules-permutations command");
+      logger.info("==== Starting generate-rules-permutations command ====");
 
       const success = processRulesAndFlavors(config);
 

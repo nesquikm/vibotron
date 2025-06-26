@@ -22,11 +22,8 @@ const config = loadConfigFile(program);
 // Add file transports before parsing (so they're available during command execution)
 try {
   addFileTransports(logger, config);
-  logger.info("File logging enabled");
 } catch (error) {
   logger.warn("Could not enable file logging:", error);
 }
-
 generateRulesPermutationsCommand(program, config);
-
 program.parse(process.argv);

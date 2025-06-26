@@ -30,7 +30,7 @@ export function createConsoleLogger(): winston.Logger {
     transports: [
       // Console transport with colorized format
       new winston.transports.Console({
-        level: "debug",
+        level: "warning",
         format: consoleFormat,
       }),
     ],
