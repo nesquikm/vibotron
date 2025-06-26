@@ -245,15 +245,21 @@ function generateRulesAllFile(
     ``,
   ].join("\n");
 
-  // Combine all content
-  const allContent = [
+  // Combine all content with inline comments
+  const contentParts = [
     sources,
+    `// Common rules from: ${commonRules.source}`,
     commonRules.content,
-    ...rules.map((rule) => rule.content),
+    ...rules.flatMap((rule) => [`// Rule from: ${rule.source}`, rule.content]),
     ...flavorLevels.flatMap((level) =>
-      level.flavors.map((flavor) => flavor.content)
+      level.flavors.flatMap((flavor) => [
+        `// Flavor L${level.level} from: ${flavor.source}`,
+        flavor.content,
+      ])
     ),
-  ].join("\n\n");
+  ];
+
+  const allContent = contentParts.join("\n\n");
 
   writeTextFile(outputPath, allContent);
 }
@@ -320,15 +326,20 @@ function generateRulesPermutations(
         .filter(Boolean)
         .join("\n");
 
-      // Combine content
-      const content = [
+      // Combine content with inline comments
+      const contentParts = [
         sources,
+        `// Common rules from: ${commonRules.source}`,
         commonRules.content,
+        rule.source !== "none" ? `// Rule from: ${rule.source}` : null,
         rule.source !== "none" ? rule.content : null,
-        ...flavorCombo.map((flavor) => flavor.content),
-      ]
-        .filter(Boolean)
-        .join("\n\n");
+        ...flavorCombo.flatMap((flavor) => [
+          `// Flavor L${flavor.level} from: ${flavor.source}`,
+          flavor.content,
+        ]),
+      ].filter(Boolean);
+
+      const content = contentParts.join("\n\n");
 
       writeTextFile(outputPath, content);
     }

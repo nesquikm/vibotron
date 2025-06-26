@@ -83,13 +83,13 @@ export function initializeLLMClients(config: any): boolean {
     const serviceClient = new OpenAI({
       apiKey: llmConfig.clients.service.apiKey,
       baseURL: llmConfig.clients.service.baseURL,
-      timeout: llmConfig.clients.service.timeout || 30000,
+      timeout: llmConfig.clients.service.timeout ?? 30000,
     });
 
     const targetClient = new OpenAI({
       apiKey: llmConfig.clients.target.apiKey,
       baseURL: llmConfig.clients.target.baseURL,
-      timeout: llmConfig.clients.target.timeout || 30000,
+      timeout: llmConfig.clients.target.timeout ?? 30000,
     });
 
     llmClients = {
