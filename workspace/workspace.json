@@ -1,0 +1,12 @@
+{
+  "input": {
+    "rules_common_file": "./workspace/input/rules_common.txt",
+    "rules_directory": "./workspace/input/rules/",
+    "flavors_level_0_directory": "./workspace/input/flavors/level_0/"
+  },
+  "output": {
+    "logs_directory": "./workspace/output/logs/",
+    "rules_all_file": "./workspace/output/rules_all.txt",
+    "rules_permutations_directory": "./workspace/output/rules_permutations/"
+  }
+}

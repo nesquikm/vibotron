@@ -1,0 +1,1 @@
+Instruct the model to customize output structure and complexity to match the user’s familiarity with the topic.
