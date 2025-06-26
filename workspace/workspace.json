@@ -18,6 +18,8 @@
     "logs_directory": "./workspace/output/logs/",
     "rules_all_file": "./workspace/output/rules_all.txt",
     "rules_permutations_directory": "./workspace/output/rules_permutations/",
-    "synthetic_user_prompts_directory": "./workspace/output/synthetic_user_prompts/"
+    "synthetic_user_prompts_directory": "./workspace/output/synthetic_user_prompts/",
+    "synthetic_user_prompts_temperature": 1.2,
+    "synthetic_user_prompts_per_permutation": 3
   }
 }
