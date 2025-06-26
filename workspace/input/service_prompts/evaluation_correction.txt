@@ -1,5 +1,13 @@
-You should evaluate the LLM response <response>{response}</response> generated for user prompt <user_prompt>{user_prompt}</user_prompt> based on rules:
-<rules_all>{rules_all}</rules_all>.
-Answer should be <correct/> or, if not, make a recommendation on how to change the system prompt for the LLM.
-Add a mention of the rule <rule>{rule}</rule> that the LLM response doesn't meet.
+You should evaluate the LLM response <response>{response}</response> generated for user prompt <user_prompt>{user_prompt}</user_prompt> based on the specific rule <rule>{rule}</rule> and all rules: <rules_all>{rules_all}</rules_all>.
+
+Your evaluation should:
+1. Check if the response follows the specific rule that was being tested
+2. Verify compliance with all general rules
+3. Identify any violations or issues
+4. Provide specific corrections if needed
+
+Format your response as:
+EVALUATION: [PASS/FAIL]
+REASONING: [Brief explanation of why it passed or failed]
+CORRECTIONS: [Specific suggestions for improvement, or "None needed" if it passed]
 
