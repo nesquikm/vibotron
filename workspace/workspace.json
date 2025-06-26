@@ -16,10 +16,17 @@
   },
   "output": {
     "logs_directory": "./workspace/output/logs/",
+
     "rules_all_file": "./workspace/output/rules_all.txt",
     "rules_permutations_directory": "./workspace/output/rules_permutations/",
+
     "synthetic_user_prompts_directory": "./workspace/output/synthetic_user_prompts/",
     "synthetic_user_prompts_temperature": 1.2,
-    "synthetic_user_prompts_per_permutation": 2
+    "synthetic_user_prompts_per_permutation": 2,
+
+    "corrections_directory": "./workspace/output/corrections/",
+
+    "target_system_prompt_file": "./workspace/output/target_system_prompt.txt",
+    "target_system_prompt_temperature": 0.7
   }
 }

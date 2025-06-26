@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { generateRulesPermutationsCommand } from "./generateRulesPermutations";
 import { generateSyntheticUserPromptsCommand } from "./generateSyntheticUserPrompts";
+import { generateTargetSystemPromptCommand } from "./generateTargetSystemPrompt";
 import { loadConfigFile } from "./loadConfigFile";
 import { logger, addFileTransports } from "./initLogger";
 import { initializeLLMClients } from "./llmClients";
@@ -33,4 +34,5 @@ initializeLLMClients(config);
 
 generateRulesPermutationsCommand(program, config);
 generateSyntheticUserPromptsCommand(program, config);
+generateTargetSystemPromptCommand(program, config);
 program.parse(process.argv);
