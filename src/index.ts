@@ -36,7 +36,7 @@ initializeLLMClients(config);
 
 generateRulesPermutationsCommand(program, config);
 generateSyntheticUserPromptsCommand(program, config);
-generateTargetSystemPromptCommand(program, config);
 generateSyntheticUserPromptResponsesCommand(program, config);
 evaluateSyntheticUserPromptResponsesCommand(program, config);
+generateTargetSystemPromptCommand(program, config);
 program.parse(process.argv);
