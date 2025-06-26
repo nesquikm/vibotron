@@ -8,6 +8,7 @@ interface LLMClientConfig {
   baseURL?: string;
   model: string;
   timeout?: number;
+  parallelism?: number;
 }
 
 interface LLMConfig {
@@ -109,7 +110,8 @@ export async function callLLM(
   instructions: string,
   input: string,
   type: "service" | "target",
-  temperature?: number
+  temperature?: number,
+  retries: number = 2
 ): Promise<string | null> {
   if (!llmClients) {
     logger.error(
@@ -157,8 +159,36 @@ export async function callLLM(
       `Successfully received response from ${type} LLM (${result.length} characters)`
     );
     return result;
-  } catch (error) {
-    logger.error(`Error calling ${type} LLM:`, error);
+  } catch (error: any) {
+    // Handle different types of errors with appropriate logging
+    if (error?.status === 429 && retries > 0) {
+      const delay = Math.random() * 2000 + 1000; // Random delay 1-3 seconds
+      logger.warn(
+        `Rate limit exceeded for ${type} LLM (429). Retrying in ${Math.round(
+          delay
+        )}ms... (${retries} retries left)`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return callLLM(instructions, input, type, temperature, retries - 1);
+    } else if (error?.status === 429) {
+      logger.error(
+        `Rate limit exceeded for ${type} LLM (429). No retries left. Consider reducing parallelism.`
+      );
+    } else if (error?.status) {
+      logger.error(
+        `HTTP ${error.status} error calling ${type} LLM: ${
+          error.message ?? "Unknown error"
+        }`
+      );
+    } else {
+      logger.error(`Error calling ${type} LLM: ${error?.message ?? error}`);
+    }
+
+    // Log additional error details in debug mode
+    if (error?.response?.data) {
+      logger.debug(`Error response data:`, error.response.data);
+    }
+
     return null;
   }
 }

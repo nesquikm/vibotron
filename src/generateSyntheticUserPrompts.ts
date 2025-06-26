@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { readdirSync, existsSync, mkdirSync, rmSync } from "fs";
 import { join, basename } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
-import { callLLM } from "./llmClients";
+import { callLLM, getLLMConfig } from "./llmClients";
 import { logger } from "./initLogger";
 
 export function generateSyntheticUserPromptsCommand(
@@ -109,9 +109,24 @@ export async function generateSyntheticUserPrompts(
       `Found ${permutationFiles.length} permutation files to process`
     );
 
-    let totalGenerated = 0;
+    // Get parallelism setting from LLM config
+    const llmConfig = getLLMConfig();
+    const parallelism = llmConfig?.clients?.target?.parallelism ?? 3;
+    logger.info(`Using parallelism: ${parallelism}`);
 
-    // Process each permutation file
+    // Create all generation tasks
+    interface GenerationTask {
+      permutationFile: string;
+      baseFileName: string;
+      servicePrompt: string;
+      outputFileName: string;
+      outputPath: string;
+      index: number;
+    }
+
+    const allTasks: GenerationTask[] = [];
+
+    // Prepare all tasks first
     for (const permutationFile of permutationFiles) {
       const permutationPath = join(permutationsDir, permutationFile);
       const baseFileName = basename(permutationFile, ".txt");
@@ -132,55 +147,133 @@ export async function generateSyntheticUserPrompts(
         .replace(/{rules_all}/g, rulesAllContent)
         .replace(/{rule}/g, permutationContent);
 
-      // Generate multiple synthetic user prompts for this permutation
+      // Create tasks for multiple synthetic user prompts for this permutation
       for (let i = 1; i <= promptsPerPermutation; i++) {
         const outputFileName = `${baseFileName}_${i}.txt`;
         const outputPath = join(syntheticPromptsDir, outputFileName);
 
-        logger.info(
-          `Generating synthetic user prompt ${i}/${promptsPerPermutation} for ${baseFileName}`
-        );
-
-        try {
-          // Call the target LLM to generate synthetic user prompt
-          const syntheticPrompt = await callLLM(
-            servicePrompt,
-            `Generate a synthetic user prompt that would test the rules and constraints defined above.`,
-            "target",
-            temperature
-          );
-
-          if (syntheticPrompt) {
-            // Create output content with metadata
-            const outputContent = [
-              `// Generated synthetic user prompt`,
-              `// Source permutation: ${permutationFile}`,
-              `// Generated at: ${new Date().toISOString()}`,
-              `// Temperature: ${temperature}`,
-              ``,
-              syntheticPrompt,
-            ].join("\n");
-
-            writeTextFile(outputPath, outputContent);
-            totalGenerated++;
-            logger.debug(`Generated synthetic user prompt: ${outputFileName}`);
-          } else {
-            logger.warn(
-              `Failed to generate synthetic user prompt for ${baseFileName}_${i}`
-            );
-          }
-        } catch (error) {
-          logger.error(
-            `Error generating synthetic user prompt for ${baseFileName}_${i}:`,
-            error
-          );
-        }
+        allTasks.push({
+          permutationFile,
+          baseFileName,
+          servicePrompt,
+          outputFileName,
+          outputPath,
+          index: i,
+        });
       }
     }
 
+    logger.info(`Created ${allTasks.length} generation tasks`);
+
+    // Execute tasks in parallel batches
+    let totalGenerated = 0;
+    const executeTask = async (task: GenerationTask): Promise<boolean> => {
+      logger.info(
+        `Generating synthetic user prompt ${task.index}/${promptsPerPermutation} for ${task.baseFileName}`
+      );
+
+      try {
+        // Call the service LLM to generate synthetic user prompt
+        const syntheticPrompt = await callLLM(
+          task.servicePrompt,
+          `Generate a synthetic user prompt that would test the rules and constraints defined above.`,
+          "service",
+          temperature
+        );
+
+        if (syntheticPrompt) {
+          // Create output content with metadata and used prompt
+          const outputContent = [
+            `// Generated synthetic user prompt`,
+            `// Source permutation: ${task.permutationFile}`,
+            `// Generated at: ${new Date().toISOString()}`,
+            `// Temperature: ${temperature}`,
+            ``,
+            `// Service prompt used for generation:`,
+            ...task.servicePrompt.split("\n").map((line) => `// ${line}`),
+            ``,
+            `// Generated response:`,
+            syntheticPrompt,
+          ].join("\n");
+
+          writeTextFile(task.outputPath, outputContent);
+          logger.debug(
+            `Generated synthetic user prompt: ${task.outputFileName}`
+          );
+          return true;
+        } else {
+          logger.warn(
+            `Failed to generate synthetic user prompt for ${task.baseFileName}_${task.index}`
+          );
+          return false;
+        }
+      } catch (error) {
+        logger.error(
+          `Error generating synthetic user prompt for ${task.baseFileName}_${task.index}:`,
+          error
+        );
+        return false;
+      }
+    };
+
+    // Process tasks in parallel batches with fail-fast behavior
+    for (let i = 0; i < allTasks.length; i += parallelism) {
+      const batch = allTasks.slice(i, i + parallelism);
+      logger.info(
+        `Processing batch ${Math.floor(i / parallelism) + 1}/${Math.ceil(
+          allTasks.length / parallelism
+        )} (${batch.length} tasks)`
+      );
+
+      const batchPromises = batch.map(executeTask);
+      const batchResults = await Promise.allSettled(batchPromises);
+
+      // Count successful generations in this batch
+      const batchSuccess = batchResults.filter(
+        (result) => result.status === "fulfilled" && result.value === true
+      ).length;
+      const batchFailed = batchResults.filter(
+        (result) => result.status === "fulfilled" && result.value === false
+      ).length;
+      const batchRejected = batchResults.filter(
+        (result) => result.status === "rejected"
+      ).length;
+
+      totalGenerated += batchSuccess;
+
+      // Fail-fast: exit immediately if any tasks failed or were rejected
+      if (batchFailed > 0 || batchRejected > 0) {
+        const totalFailed = batchFailed + batchRejected;
+        logger.error(
+          `Batch failed: ${totalFailed} tasks failed. Stopping generation to prevent further errors.`
+        );
+
+        if (batchRejected > 0) {
+          batchResults.forEach((result, index) => {
+            if (result.status === "rejected") {
+              logger.error(`Task ${i + index} rejected: ${result.reason}`);
+            }
+          });
+        }
+
+        const processedSoFar = i + batch.length;
+        const remainingTasks = allTasks.length - processedSoFar;
+        logger.error(
+          `Generation stopped early. Processed: ${processedSoFar}/${allTasks.length} tasks. ${remainingTasks} tasks skipped.`
+        );
+        return false;
+      }
+
+      logger.info(
+        `Batch completed: ${batchSuccess} successful, ${batchFailed} failed, ${batchRejected} rejected`
+      );
+    }
+
+    // If we reach here, all batches completed successfully
     logger.info(
-      `Generated ${totalGenerated} synthetic user prompts from ${permutationFiles.length} permutations`
+      `Successfully generated all ${totalGenerated} synthetic user prompts from ${permutationFiles.length} permutations`
     );
+
     return true;
   } catch (error) {
     logger.error("Error in generateSyntheticUserPrompts:", error);
