@@ -1,5 +1,5 @@
 import winston from "winston";
-import { readdirSync, existsSync, mkdirSync } from "fs";
+import { readdirSync, existsSync, mkdirSync, unlinkSync, rmSync } from "fs";
 import { join, basename } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
 
@@ -20,6 +20,9 @@ export function processRulesAndFlavors(
 ): boolean {
   try {
     logger.info("Starting rules and flavors processing");
+
+    // Step 0: Clear old files
+    clearOldFiles(config, logger);
 
     // Step 1: Read rules_common_file (required)
     const commonRules = readCommonRules(config, logger);
@@ -45,6 +48,35 @@ export function processRulesAndFlavors(
   } catch (error) {
     logger.error("Error in processRulesAndFlavors:", error);
     return false;
+  }
+}
+
+function clearOldFiles(config: any, logger: winston.Logger): void {
+  logger.info("Clearing old files");
+
+  // Clear rules_all_file if it exists
+  const rulesAllFile = config.output?.rules_all_file;
+  if (rulesAllFile && existsSync(rulesAllFile)) {
+    try {
+      unlinkSync(rulesAllFile);
+      logger.info(`Cleared old rules_all_file: ${rulesAllFile}`);
+    } catch (error) {
+      logger.warn(`Failed to clear rules_all_file ${rulesAllFile}:`, error);
+    }
+  }
+
+  // Clear rules_permutations_directory if it exists
+  const permutationsDir = config.output?.rules_permutations_directory;
+  if (permutationsDir && existsSync(permutationsDir)) {
+    try {
+      rmSync(permutationsDir, { recursive: true, force: true });
+      logger.info(`Cleared old permutations directory: ${permutationsDir}`);
+    } catch (error) {
+      logger.warn(
+        `Failed to clear permutations directory ${permutationsDir}:`,
+        error
+      );
+    }
   }
 }
 
@@ -125,7 +157,7 @@ function readFlavorLevels(config: any, logger: winston.Logger): FlavorLevel[] {
   // Find all flavors_level_N_directory keys
   const flavorKeys = Object.keys(config.input)
     .filter((key) => /^flavors_level_\d+_directory$/.exec(key))
-    .sort(); // Sort to ensure consistent order
+    .sort((a, b) => a.localeCompare(b)); // Sort to ensure consistent order
 
   for (const key of flavorKeys) {
     const match = /^flavors_level_(\d+)_directory$/.exec(key);
