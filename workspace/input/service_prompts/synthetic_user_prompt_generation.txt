@@ -1,1 +1,2 @@
 Based on rules: <rules_all>{rules_all}</rules_all> create a verification prompt on behalf of the user to evaluate <rule>{rule}</rule>
+The output should be a user prompt, nothing else.
