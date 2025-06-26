@@ -66,7 +66,7 @@ export async function generateTargetSystemPrompt(
       return false;
     }
 
-    // Read corrections content (optional)
+    // Read corrections content (optional) - only from failed evaluations
     let correctionsContent = "";
     if (correctionsDir && existsSync(correctionsDir)) {
       logger.info(`Reading corrections from: ${correctionsDir}`);
@@ -77,20 +77,58 @@ export async function generateTargetSystemPrompt(
 
       if (correctionFiles.length > 0) {
         const corrections: string[] = [];
+        let processedFiles = 0;
+        let failedEvaluations = 0;
 
         for (const file of correctionFiles) {
           const filePath = join(correctionsDir, file);
-          logger.info(`Reading correction file: ${filePath}`);
+          logger.debug(`Processing correction file: ${filePath}`);
 
           const content = readTextFile(filePath);
           if (content !== null) {
-            corrections.push(`// Correction from: ${filePath}\n${content}`);
+            processedFiles++;
+
+            // Look for EVALUATION: FAIL pattern in the entire content
+            const evaluationFailMatch = content.match(/EVALUATION:\s*FAIL/i);
+
+            if (evaluationFailMatch) {
+              failedEvaluations++;
+
+              // Extract text after CORRECTIONS: (case insensitive, multiline)
+              const correctionsMatch = content.match(
+                /CORRECTIONS:\s*(.+?)(?:\n\n|$)/is
+              );
+
+              if (correctionsMatch) {
+                const correctionText = correctionsMatch[1].trim();
+
+                // Skip if corrections say "None needed"
+                if (correctionText.toLowerCase() !== "none needed") {
+                  corrections.push(
+                    `// Correction from: ${filePath}\n${correctionText}`
+                  );
+                  logger.debug(
+                    `Extracted correction from failed evaluation: ${file}`
+                  );
+                } else {
+                  logger.debug(
+                    `Skipping "None needed" correction from: ${file}`
+                  );
+                }
+              } else {
+                logger.debug(
+                  `No CORRECTIONS section found in failed evaluation: ${file}`
+                );
+              }
+            } else {
+              logger.debug(`Skipping non-failed evaluation: ${file}`);
+            }
           }
         }
 
         correctionsContent = corrections.join("\n\n");
         logger.info(
-          `Successfully read ${correctionFiles.length} correction files`
+          `Processed ${processedFiles} correction files, found ${failedEvaluations} failed evaluations, extracted ${corrections.length} actionable corrections`
         );
       } else {
         logger.info("No correction files found in corrections directory");
