@@ -1,7 +1,7 @@
-import winston from "winston";
 import { readdirSync, existsSync, mkdirSync, unlinkSync, rmSync } from "fs";
 import { join, basename } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
+import { logger } from "./initLogger";
 
 interface RuleData {
   content: string;
@@ -14,34 +14,31 @@ interface FlavorLevel {
   flavors: RuleData[];
 }
 
-export function processRulesAndFlavors(
-  config: any,
-  logger: winston.Logger
-): boolean {
+export function processRulesAndFlavors(config: any): boolean {
   try {
     logger.info("Starting rules and flavors processing");
 
     // Step 0: Clear old files
-    clearOldFiles(config, logger);
+    clearOldFiles(config);
 
     // Step 1: Read rules_common_file (required)
-    const commonRules = readCommonRules(config, logger);
+    const commonRules = readCommonRules(config);
     if (!commonRules) {
       logger.error("Failed to read common rules file - aborting");
       return false;
     }
 
     // Step 2: Read rules from rules_directory (optional)
-    const rules = readRulesDirectory(config, logger);
+    const rules = readRulesDirectory(config);
 
     // Step 3: Read flavors from all flavor level directories (optional)
-    const flavorLevels = readFlavorLevels(config, logger);
+    const flavorLevels = readFlavorLevels(config);
 
     // Step 4: Generate rules_all_file
-    generateRulesAllFile(commonRules, rules, flavorLevels, config, logger);
+    generateRulesAllFile(commonRules, rules, flavorLevels, config);
 
     // Step 5: Generate permutations
-    generateRulesPermutations(commonRules, rules, flavorLevels, config, logger);
+    generateRulesPermutations(commonRules, rules, flavorLevels, config);
 
     logger.info("Rules and flavors processing completed successfully");
     return true;
@@ -51,7 +48,7 @@ export function processRulesAndFlavors(
   }
 }
 
-function clearOldFiles(config: any, logger: winston.Logger): void {
+function clearOldFiles(config: any): void {
   logger.info("Clearing old files");
 
   // Clear rules_all_file if it exists
@@ -80,7 +77,7 @@ function clearOldFiles(config: any, logger: winston.Logger): void {
   }
 }
 
-function readCommonRules(config: any, logger: winston.Logger): RuleData | null {
+function readCommonRules(config: any): RuleData | null {
   const filePath = config.input?.rules_common_file;
 
   if (!filePath) {
@@ -94,7 +91,7 @@ function readCommonRules(config: any, logger: winston.Logger): RuleData | null {
   }
 
   logger.info(`Reading common rules from: ${filePath}`);
-  const content = readTextFile(filePath, logger);
+  const content = readTextFile(filePath);
 
   if (content === null) {
     return null;
@@ -106,7 +103,7 @@ function readCommonRules(config: any, logger: winston.Logger): RuleData | null {
   };
 }
 
-function readRulesDirectory(config: any, logger: winston.Logger): RuleData[] {
+function readRulesDirectory(config: any): RuleData[] {
   const rulesDir = config.input?.rules_directory;
   const rules: RuleData[] = [];
 
@@ -129,7 +126,7 @@ function readRulesDirectory(config: any, logger: winston.Logger): RuleData[] {
       const filePath = join(rulesDir, file);
       logger.info(`Reading rule file: ${filePath}`);
 
-      const content = readTextFile(filePath, logger);
+      const content = readTextFile(filePath);
       if (content !== null) {
         rules.push({
           content,
@@ -146,7 +143,7 @@ function readRulesDirectory(config: any, logger: winston.Logger): RuleData[] {
   return rules;
 }
 
-function readFlavorLevels(config: any, logger: winston.Logger): FlavorLevel[] {
+function readFlavorLevels(config: any): FlavorLevel[] {
   const flavorLevels: FlavorLevel[] = [];
 
   if (!config.input) {
@@ -168,7 +165,7 @@ function readFlavorLevels(config: any, logger: winston.Logger): FlavorLevel[] {
 
     logger.info(`Processing flavor level ${level} from: ${flavorDir}`);
 
-    const flavors = readFlavorDirectory(flavorDir, level, logger);
+    const flavors = readFlavorDirectory(flavorDir, level);
     if (flavors.length > 0) {
       flavorLevels.push({ level, flavors });
     }
@@ -178,11 +175,7 @@ function readFlavorLevels(config: any, logger: winston.Logger): FlavorLevel[] {
   return flavorLevels;
 }
 
-function readFlavorDirectory(
-  flavorDir: string,
-  level: number,
-  logger: winston.Logger
-): RuleData[] {
+function readFlavorDirectory(flavorDir: string, level: number): RuleData[] {
   const flavors: RuleData[] = [];
 
   if (!existsSync(flavorDir)) {
@@ -201,7 +194,7 @@ function readFlavorDirectory(
       const filePath = join(flavorDir, file);
       logger.info(`Reading flavor file level ${level}: ${filePath}`);
 
-      const content = readTextFile(filePath, logger);
+      const content = readTextFile(filePath);
       if (content !== null) {
         flavors.push({
           content,
@@ -227,8 +220,7 @@ function generateRulesAllFile(
   commonRules: RuleData,
   rules: RuleData[],
   flavorLevels: FlavorLevel[],
-  config: any,
-  logger: winston.Logger
+  config: any
 ): void {
   const outputPath = config.output?.rules_all_file;
 
@@ -263,15 +255,14 @@ function generateRulesAllFile(
     ),
   ].join("\n\n");
 
-  writeTextFile(outputPath, allContent, logger);
+  writeTextFile(outputPath, allContent);
 }
 
 function generateRulesPermutations(
   commonRules: RuleData,
   rules: RuleData[],
   flavorLevels: FlavorLevel[],
-  config: any,
-  logger: winston.Logger
+  config: any
 ): void {
   const outputDir = config.output?.rules_permutations_directory;
 
@@ -339,7 +330,7 @@ function generateRulesPermutations(
         .filter(Boolean)
         .join("\n\n");
 
-      writeTextFile(outputPath, content, logger);
+      writeTextFile(outputPath, content);
     }
   }
 

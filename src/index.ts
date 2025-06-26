@@ -1,12 +1,11 @@
 import { Command } from "commander";
 import { generateRulesPermutationsCommand } from "./generateRulesPermutations";
 import { loadConfigFile } from "./loadConfigFile";
-import { createConsoleLogger, addFileTransports } from "./initLogger";
+import { logger, addFileTransports } from "./initLogger";
 
 const program = new Command();
 
-// Create console logger
-const logger = createConsoleLogger();
+// Logger is imported as global instance
 
 program.version("0.0.1");
 program.name("Vibotron");
@@ -20,13 +19,14 @@ program.option(
 
 const config = loadConfigFile(program);
 
-generateRulesPermutationsCommand(program, config, logger);
-
-program.parse(process.argv);
-
-// Add file transports after parsing (when we have program options)
+// Add file transports before parsing (so they're available during command execution)
 try {
   addFileTransports(logger, config);
+  logger.info("File logging enabled");
 } catch (error) {
   logger.warn("Could not enable file logging:", error);
 }
+
+generateRulesPermutationsCommand(program, config);
+
+program.parse(process.argv);

@@ -94,3 +94,6 @@ export function addFileTransports(
 
   return logger;
 }
+
+// Global logger instance
+export const logger = createConsoleLogger();

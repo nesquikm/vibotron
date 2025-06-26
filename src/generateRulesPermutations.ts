@@ -1,12 +1,8 @@
 import { Command } from "commander";
-import winston from "winston";
 import { processRulesAndFlavors } from "./processRules";
+import { logger } from "./initLogger";
 
-export function generateRulesPermutationsCommand(
-  program: Command,
-  config: any,
-  logger: winston.Logger
-) {
+export function generateRulesPermutationsCommand(program: Command, config: any) {
   program
     .command("generate-rules-permutations")
     .alias("grp")
@@ -14,7 +10,7 @@ export function generateRulesPermutationsCommand(
     .action(async () => {
       logger.info("Starting generate-rules-permutations command");
 
-      const success = processRulesAndFlavors(config, logger);
+      const success = processRulesAndFlavors(config);
 
       if (success) {
         logger.info("Rules permutations generated successfully");

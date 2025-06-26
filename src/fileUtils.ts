@@ -1,10 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
-import winston from "winston";
+import { logger } from "./initLogger";
 
-export function readTextFile(
-  filePath: string,
-  logger: winston.Logger
-): string | null {
+export function readTextFile(filePath: string): string | null {
   try {
     logger.debug(`Reading file: ${filePath}`);
 
@@ -29,11 +26,7 @@ export function readTextFile(
   }
 }
 
-export function writeTextFile(
-  filePath: string,
-  content: string,
-  logger: winston.Logger
-): boolean {
+export function writeTextFile(filePath: string, content: string): boolean {
   try {
     logger.debug(`Writing file: ${filePath}`);
 
