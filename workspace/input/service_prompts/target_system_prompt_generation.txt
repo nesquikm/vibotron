@@ -1,3 +1,10 @@
-<rules_all>{rules_all}</rules_all>
+<rules_all>
+{rules_all}
+</rules_all>
+
 Consider the recommendations:
-<all_corrections>{all_corrections}</all_corrections>
+
+<all_corrections>
+{all_corrections}
+</all_corrections>
+
