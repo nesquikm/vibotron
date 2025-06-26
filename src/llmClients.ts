@@ -108,7 +108,8 @@ export function initializeLLMClients(config: any): boolean {
 export async function callLLM(
   instructions: string,
   input: string,
-  type: "service" | "target"
+  type: "service" | "target",
+  temperature?: number
 ): Promise<string | null> {
   if (!llmClients) {
     logger.error(
@@ -142,6 +143,7 @@ export async function callLLM(
           content: input,
         },
       ],
+      temperature: temperature,
     });
 
     const result = response.choices[0]?.message?.content;
