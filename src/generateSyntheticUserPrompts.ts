@@ -175,8 +175,8 @@ export async function generateSyntheticUserPrompts(
       try {
         // Call the service LLM to generate synthetic user prompt
         const syntheticPrompt = await callLLM(
+          "",
           task.servicePrompt,
-          `Generate a synthetic user prompt that would test the rules and constraints defined above.`,
           "service",
           temperature
         );

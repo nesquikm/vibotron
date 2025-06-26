@@ -104,9 +104,7 @@ export async function generateTargetSystemPrompt(
 
                 // Skip if corrections say "None needed"
                 if (correctionText.toLowerCase() !== "none needed") {
-                  corrections.push(
-                    `// Correction from: ${filePath}\n${correctionText}`
-                  );
+                  corrections.push(correctionText);
                   logger.debug(
                     `Extracted correction from failed evaluation: ${file}`
                   );
@@ -157,8 +155,8 @@ export async function generateTargetSystemPrompt(
 
     // Call the service LLM to generate target system prompt
     const targetSystemPrompt = await callLLM(
+      "",
       servicePrompt,
-      "Generate a comprehensive system prompt based on the rules and corrections provided above.",
       "service",
       temperature
     );

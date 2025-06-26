@@ -2,7 +2,8 @@
   "name": "vibotron",
   "packageManager": "yarn@4.5.2",
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "first-pass": "tsx src/index.ts grp && tsx src/index.ts gsup && tsx src/index.ts gtsp && tsx src/index.ts gsupr && tsx src/index.ts esupr"
   },
   "dependencies": {
     "commander": "^14.0.0",

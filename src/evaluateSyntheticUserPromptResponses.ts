@@ -236,11 +236,7 @@ export async function evaluateSyntheticUserPromptResponses(
           .replace(/{rule}/g, task.ruleContent);
 
         // Call the service LLM to evaluate the response
-        const evaluation = await callLLM(
-          servicePrompt,
-          "Please evaluate this response according to the criteria provided.",
-          "service"
-        );
+        const evaluation = await callLLM("", servicePrompt, "service");
 
         if (evaluation) {
           // Create output content with metadata
