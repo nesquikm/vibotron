@@ -24,6 +24,8 @@
     "synthetic_user_prompts_temperature": 1.2,
     "synthetic_user_prompts_per_permutation": 2,
 
+    "synthetic_user_prompts_responses_directory": "./workspace/output/synthetic_user_prompts_responses/",
+
     "corrections_directory": "./workspace/output/corrections/",
 
     "target_system_prompt_file": "./workspace/output/target_system_prompt.txt",
