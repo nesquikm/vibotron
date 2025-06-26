@@ -1011,6 +1011,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"openai@npm:^5.7.0":
+  version: 5.7.0
+  resolution: "openai@npm:5.7.0"
+  peerDependencies:
+    ws: ^8.18.0
+    zod: ^3.23.8
+  peerDependenciesMeta:
+    ws:
+      optional: true
+    zod:
+      optional: true
+  bin:
+    openai: bin/cli
+  checksum: 10c0/de90deeb9d0a204eff8f95d7dd0916b5dc77ec0bf4ac4ec9cdda57eedb1cadbe5b9d0c3aca37d6cedb8a0870624dc070c1eb41ad031d64c189a447351a7a6291
+  languageName: node
+  linkType: hard
+
 "p-map@npm:^7.0.2":
   version: 7.0.3
   resolution: "p-map@npm:7.0.3"
@@ -1366,6 +1383,7 @@ __metadata:
     "@types/node": "npm:^24.0.4"
     "@types/winston": "npm:^2.4.4"
     commander: "npm:^14.0.0"
+    openai: "npm:^5.7.0"
     tsx: "npm:^4.20.3"
     typescript: "npm:^5.8.3"
     winston: "npm:^3.17.0"

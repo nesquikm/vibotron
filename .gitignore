@@ -13,4 +13,5 @@
 .pnp.*
 
 workspace/output/
+workspace/llms.json
 node_modules/

@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { generateRulesPermutationsCommand } from "./generateRulesPermutations";
 import { loadConfigFile } from "./loadConfigFile";
 import { logger, addFileTransports } from "./initLogger";
+import { initializeLLMClients } from "./llmClients";
 
 const program = new Command();
 
@@ -25,5 +26,9 @@ try {
 } catch (error) {
   logger.warn("Could not enable file logging:", error);
 }
+
+// Initialize LLM clients
+initializeLLMClients(config);
+
 generateRulesPermutationsCommand(program, config);
 program.parse(process.argv);

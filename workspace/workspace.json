@@ -1,4 +1,13 @@
 {
+  "llms": {
+    "config_file": "./workspace/llms.json"
+  },
+  "service_prompts": {
+    "synthetic_user_prompt_generation": "./workspace/input/service_prompts/synthetic_user_prompt_generation.txt",
+    "evaluation": "./workspace/input/service_prompts/evaluation.txt",
+    "correction": "./workspace/input/service_prompts/correction.txt",
+    "target_system_prompt_generation": "./workspace/input/service_prompts/target_system_prompt_generation.txt"
+  },
   "input": {
     "rules_common_file": "./workspace/input/rules_common.txt",
     "rules_directory": "./workspace/input/rules/",
@@ -8,6 +17,7 @@
   "output": {
     "logs_directory": "./workspace/output/logs/",
     "rules_all_file": "./workspace/output/rules_all.txt",
-    "rules_permutations_directory": "./workspace/output/rules_permutations/"
+    "rules_permutations_directory": "./workspace/output/rules_permutations/",
+    "synthetic_user_prompts_directory": "./workspace/output/synthetic_user_prompts/"
   }
 }

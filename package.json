@@ -3,6 +3,7 @@
   "packageManager": "yarn@4.5.2",
   "dependencies": {
     "commander": "^14.0.0",
+    "openai": "^5.7.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

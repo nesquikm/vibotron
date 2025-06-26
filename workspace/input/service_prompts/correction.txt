@@ -1,0 +1,2 @@
+You should make a recommendation on how to change the system prompt for the LLM.
+System prompt was: <target_system_prompt>{target_system_prompt}</target_system_prompt>, user prompt was: <user_prompt>{user_prompt}</user_prompt>, LLM response was: <target_response>{target_response}</target_response>, and this doesn't meet the rule <rule>{rule}</rule>
