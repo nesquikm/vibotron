@@ -92,6 +92,47 @@ Create a `workspace.json` file in your project directory:
 }
 ```
 
+### Understanding the Configuration Structure
+
+The workspace.json configuration is designed around Vibotron's core concept of **systematic prompt testing through permutations**:
+
+#### Why Separate Rules and Flavors?
+
+**`rules_common_file`** - Contains your base system prompt and core rules that apply to ALL variations:
+
+- Your AI's identity and mission
+- Fundamental behavioral guidelines
+- Context that never changes
+
+**`rules_directory`** - Contains individual rule files that define specific behaviors:
+
+- Each file represents a distinct rule set (e.g., `response-tone.txt`, `error-handling.txt`)
+- These get combined with flavors to create permutations
+- Example: If you have 3 rule files, each will be tested separately
+
+**`flavors_directory`** - Contains variation files organized by levels:
+
+- `level_0/` - Primary variation dimensions (e.g., user-type, complexity)
+- `level_1/` - Secondary variation dimensions (e.g., response-length, context)
+- Each level creates a new permutation dimension
+
+#### Permutation Logic
+
+Vibotron generates **all possible combinations** for comprehensive testing:
+
+```text
+Rules × Level 0 Flavors × Level 1 Flavors = Total Permutations
+```
+
+**Example:**
+
+- 3 rules files (`tone.txt`, `accuracy.txt`, `formatting.txt`)
+- 2 level_0 flavors (`beginner.txt`, `expert.txt`)
+- 2 level_1 flavors (`brief.txt`, `detailed.txt`)
+- **Total: 3 × 2 × 2 = 12 unique test scenarios**
+
+Each permutation becomes a complete system prompt that gets tested with synthetic user interactions, allowing you to identify which combinations work best for different scenarios.
+
 ### Input Structure
 
 ```text
