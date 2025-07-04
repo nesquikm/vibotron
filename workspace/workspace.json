@@ -1,33 +1,33 @@
 {
   "llms": {
-    "config_file": "./workspace/llms.json"
+    "config_file": "./llms.json"
   },
   "service_prompts": {
-    "synthetic_user_prompt_generation": "./workspace/input/service_prompts/synthetic_user_prompt_generation.txt",
-    "evaluation_correction": "./workspace/input/service_prompts/evaluation_correction.txt",
-    "target_system_prompt_generation": "./workspace/input/service_prompts/target_system_prompt_generation.txt"
+    "synthetic_user_prompt_generation": "./input/service_prompts/synthetic_user_prompt_generation.txt",
+    "evaluation_correction": "./input/service_prompts/evaluation_correction.txt",
+    "target_system_prompt_generation": "./input/service_prompts/target_system_prompt_generation.txt"
   },
   "input": {
-    "rules_common_file": "./workspace/input/rules_common.txt",
-    "rules_directory": "./workspace/input/rules/",
-    "flavors_level_0_directory": "./workspace/input/flavors/level_0/",
-    "flavors_level_1_directory": "./workspace/input/flavors/level_1/"
+    "rules_common_file": "./input/rules_common.txt",
+    "rules_directory": "./input/rules/",
+    "flavors_level_0_directory": "./input/flavors/level_0/",
+    "flavors_level_1_directory": "./input/flavors/level_1/"
   },
   "output": {
-    "logs_directory": "./workspace/output/logs/",
+    "logs_directory": "./output/logs/",
 
-    "rules_all_file": "./workspace/output/rules_all.txt",
-    "rules_permutations_directory": "./workspace/output/rules_permutations/",
+    "rules_all_file": "./output/rules_all.txt",
+    "rules_permutations_directory": "./output/rules_permutations/",
 
-    "synthetic_user_prompts_directory": "./workspace/output/synthetic_user_prompts/",
+    "synthetic_user_prompts_directory": "./output/synthetic_user_prompts/",
     "synthetic_user_prompts_temperature": 1.2,
     "synthetic_user_prompts_per_permutation": 2,
 
-    "synthetic_user_prompts_responses_directory": "./workspace/output/synthetic_user_prompts_responses/",
+    "synthetic_user_prompts_responses_directory": "./output/synthetic_user_prompts_responses/",
 
-    "corrections_directory": "./workspace/output/corrections/",
+    "corrections_directory": "./output/corrections/",
 
-    "target_system_prompt_file": "./workspace/output/target_system_prompt.txt",
+    "target_system_prompt_file": "./output/target_system_prompt.txt",
     "target_system_prompt_temperature": 0.7
   }
 }

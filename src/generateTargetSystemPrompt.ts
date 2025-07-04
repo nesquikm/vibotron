@@ -7,7 +7,7 @@ import { logger } from "./initLogger";
 
 export function generateTargetSystemPromptCommand(
   program: Command,
-  config: any
+  configLoader: (program: Command) => any
 ) {
   program
     .command("generate-target-system-prompt")
@@ -16,6 +16,7 @@ export function generateTargetSystemPromptCommand(
     .action(async () => {
       logger.info("==== Starting generate-target-system-prompt command ====");
 
+      const config = configLoader(program);
       const success = await generateTargetSystemPrompt(config);
 
       if (success) {
@@ -89,14 +90,14 @@ export async function generateTargetSystemPrompt(
             processedFiles++;
 
             // Look for EVALUATION: FAIL pattern in the entire content
-            const evaluationFailMatch = content.match(/EVALUATION:\s*FAIL/i);
+            const evaluationFailMatch = /EVALUATION:\s*FAIL/i.exec(content);
 
             if (evaluationFailMatch) {
               failedEvaluations++;
 
               // Extract text after CORRECTIONS: (case insensitive, multiline)
               // Capture everything after CORRECTIONS: until end of file, preserving all content including empty lines
-              const correctionsMatch = content.match(/CORRECTIONS:\s*(.+)/is);
+              const correctionsMatch = /CORRECTIONS:\s*(.+)/is.exec(content);
 
               if (correctionsMatch) {
                 const correctionText = correctionsMatch[1].trim();

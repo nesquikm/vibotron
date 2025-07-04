@@ -7,7 +7,7 @@ import { logger } from "./initLogger";
 
 export function generateSyntheticUserPromptResponsesCommand(
   program: Command,
-  config: any
+  configLoader: (program: Command) => any
 ) {
   program
     .command("generate-synthetic-user-prompt-responses")
@@ -18,6 +18,7 @@ export function generateSyntheticUserPromptResponsesCommand(
         "==== Starting generate-synthetic-user-prompt-responses command ===="
       );
 
+      const config = configLoader(program);
       const success = await generateSyntheticUserPromptResponses(config);
 
       if (success) {

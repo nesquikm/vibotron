@@ -2,7 +2,10 @@ import { Command } from "commander";
 import { processRulesAndFlavors } from "./processRules";
 import { logger } from "./initLogger";
 
-export function generateRulesPermutationsCommand(program: Command, config: any) {
+export function generateRulesPermutationsCommand(
+  program: Command,
+  configLoader: (program: Command) => any
+) {
   program
     .command("generate-rules-permutations")
     .alias("grp")
@@ -10,6 +13,7 @@ export function generateRulesPermutationsCommand(program: Command, config: any) 
     .action(async () => {
       logger.info("==== Starting generate-rules-permutations command ====");
 
+      const config = configLoader(program);
       const success = processRulesAndFlavors(config);
 
       if (success) {

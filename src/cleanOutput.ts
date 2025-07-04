@@ -3,7 +3,10 @@ import { existsSync, rmSync, mkdirSync } from "fs";
 import { spawn } from "child_process";
 import { logger, addFileTransports } from "./initLogger";
 
-export function cleanOutputCommand(program: Command, config: any) {
+export function cleanOutputCommand(
+  program: Command,
+  configLoader: (program: Command) => any
+) {
   program
     .command("clean-workspace")
     .alias("cw")
@@ -11,6 +14,7 @@ export function cleanOutputCommand(program: Command, config: any) {
     .action(async () => {
       logger.info("==== Starting clean-workspace command ====");
 
+      const config = configLoader(program);
       const success = await cleanOutput(config);
 
       if (success) {
