@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { readdirSync, existsSync } from "fs";
+import { readdirSync, existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
 import { callLLM } from "./llmClients";
@@ -144,10 +144,82 @@ export async function generateTargetSystemPrompt(
       return false;
     }
 
+    // Read existing target system prompt if it exists
+    let oldSystemPrompt = "";
+    logger.info(
+      `Checking if target system prompt file exists: ${targetSystemPromptFile}`
+    );
+    if (existsSync(targetSystemPromptFile)) {
+      logger.info(
+        `Reading existing target system prompt from: ${targetSystemPromptFile}`
+      );
+
+      try {
+        const existingContent = readFileSync(targetSystemPromptFile, "utf8");
+        logger.info(
+          `File content read successfully: true, length: ${existingContent.length}`
+        );
+        if (existingContent) {
+          // Extract the actual prompt content (after the metadata comments)
+          // Look for the line "// Generated target system prompt:" and take everything after it
+          const lines = existingContent.split("\n");
+          let foundPromptStart = false;
+          const promptLines: string[] = [];
+
+          logger.info(
+            `Processing ${lines.length} lines from existing target system prompt file`
+          );
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+
+            if (line.trim() === "// Generated target system prompt:") {
+              foundPromptStart = true;
+              logger.info(
+                `Found prompt start marker at line ${i + 1}: "${line}"`
+              );
+              continue;
+            }
+
+            if (foundPromptStart) {
+              // Only include lines that are NOT commented out (don't start with //)
+              // This ensures we get the actual generated content, not the commented service prompt
+              if (!line.trim().startsWith("//")) {
+                promptLines.push(line);
+                logger.info(`Added line ${i + 1} to prompt: "${line}"`);
+              } else {
+                logger.debug(`Skipped commented line ${i + 1}: "${line}"`);
+              }
+            }
+          }
+
+          logger.info(
+            `Extracted ${promptLines.length} lines of prompt content`
+          );
+
+          if (promptLines.length > 0) {
+            oldSystemPrompt = promptLines.join("\n").trim();
+            logger.info(
+              `Extracted existing target system prompt (${oldSystemPrompt.length} characters)`
+            );
+          } else {
+            logger.warn(
+              "Could not extract prompt content from existing target system prompt file"
+            );
+          }
+        }
+      } catch (error) {
+        logger.warn("Could not read existing target system prompt file", error);
+      }
+    } else {
+      logger.info("No existing target system prompt found - starting fresh");
+    }
+
     // Prepare the service prompt by replacing placeholders
     const servicePrompt = servicePromptTemplate
       .replace(/{rules_all}/g, rulesAllContent)
-      .replace(/{all_corrections}/g, correctionsContent);
+      .replace(/{all_corrections}/g, correctionsContent)
+      .replace(/{old_system_prompt}/g, oldSystemPrompt);
 
     logger.info(
       `Generating target system prompt with temperature: ${temperature}`

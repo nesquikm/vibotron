@@ -2,6 +2,13 @@
 {rules_all}
 </rules_all>
 
+
+Old system prompt was:
+
+<old_system_prompt>
+{old_system_prompt}
+</old_system_prompt>
+
 Consider the recommendations:
 
 <all_corrections>
