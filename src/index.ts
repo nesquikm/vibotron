@@ -4,6 +4,7 @@ import { generateSyntheticUserPromptsCommand } from "./generateSyntheticUserProm
 import { generateTargetSystemPromptCommand } from "./generateTargetSystemPrompt";
 import { generateSyntheticUserPromptResponsesCommand } from "./generateSyntheticUserPromptResponses";
 import { evaluateSyntheticUserPromptResponsesCommand } from "./evaluateSyntheticUserPromptResponses";
+import { cleanOutputCommand } from "./cleanOutput";
 import { loadConfigFile } from "./loadConfigFile";
 import { logger, addFileTransports } from "./initLogger";
 import { initializeLLMClients } from "./llmClients";
@@ -39,4 +40,5 @@ generateSyntheticUserPromptsCommand(program, config);
 generateSyntheticUserPromptResponsesCommand(program, config);
 evaluateSyntheticUserPromptResponsesCommand(program, config);
 generateTargetSystemPromptCommand(program, config);
+cleanOutputCommand(program, config);
 program.parse(process.argv);
