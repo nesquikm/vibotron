@@ -95,9 +95,8 @@ export async function generateTargetSystemPrompt(
               failedEvaluations++;
 
               // Extract text after CORRECTIONS: (case insensitive, multiline)
-              const correctionsMatch = content.match(
-                /CORRECTIONS:\s*(.+?)(?:\n\n|$)/is
-              );
+              // Capture everything after CORRECTIONS: until end of file, preserving all content including empty lines
+              const correctionsMatch = content.match(/CORRECTIONS:\s*(.+)/is);
 
               if (correctionsMatch) {
                 const correctionText = correctionsMatch[1].trim();
