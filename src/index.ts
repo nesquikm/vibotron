@@ -26,17 +26,17 @@ program.option(
 
 // Helper function to load and initialize config
 function loadAndInitializeConfig(program: Command) {
-  const config = loadConfigFile(program);
+const config = loadConfigFile(program);
 
-  // Add file transports after loading config
-  try {
-    addFileTransports(logger, config);
-  } catch (error) {
-    logger.warn("Could not enable file logging:", error);
-  }
+// Add file transports after loading config
+try {
+  addFileTransports(logger, config);
+} catch (error) {
+  logger.warn("Could not enable file logging:", error);
+}
 
-  // Initialize LLM clients
-  initializeLLMClients(config);
+// Initialize LLM clients
+initializeLLMClients(config);
 
   return config;
 }

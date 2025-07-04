@@ -186,7 +186,6 @@ export async function generateTargetSystemPrompt(
               // This ensures we get the actual generated content, not the commented service prompt
               if (!line.trim().startsWith("//")) {
                 promptLines.push(line);
-                logger.info(`Added line ${i + 1} to prompt: "${line}"`);
               } else {
                 logger.debug(`Skipped commented line ${i + 1}: "${line}"`);
               }
