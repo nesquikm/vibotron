@@ -10,6 +10,7 @@ Vibotron is a powerful tool for systematically testing and optimizing AI system 
 - [Quick Start](#quick-start)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [LLM Configuration](#llm-configuration)
 - [Complete Pipeline Order](#complete-pipeline-order)
 - [Available Commands](#available-commands)
 - [Project Structure](#project-structure)
@@ -91,6 +92,94 @@ Create a `workspace.json` file in your project directory:
   }
 }
 ```
+
+## LLM Configuration
+
+Before running Vibrotron, you need to configure your LLM providers by setting up API keys and models.
+
+### Setup Steps
+
+1. **Copy the example configuration:**
+
+   ```bash
+   cp llms.example.json llms.json
+   ```
+
+2. **Edit `llms.json` with your API keys and preferences:**
+
+   ```json
+   {
+     "clients": {
+       "service": {
+         "apiKey": "your-openai-api-key-for-service",
+         "baseURL": "https://api.openai.com/v1",
+         "model": "gpt-4",
+         "timeout": 30000,
+         "parallelism": 2
+       },
+       "target": {
+         "apiKey": "your-openai-api-key-for-target",
+         "baseURL": "https://api.openai.com/v1",
+         "model": "gpt-3.5-turbo",
+         "timeout": 30000,
+         "parallelism": 2
+       }
+     }
+   }
+   ```
+
+### Understanding the Two Clients
+
+**`service` client** - Used for Vibotron's internal operations:
+
+- Generating synthetic user prompts
+- Evaluating responses against rules
+- Creating target system prompts
+- Analyzing failures and corrections
+- *Recommended: Use a powerful model like `gpt-4` for better evaluation quality*
+
+**`target` client** - Used to simulate your actual AI system:
+
+- Generating responses to synthetic user prompts
+- This represents the AI system you're trying to optimize
+- *Can use a different/cheaper model like `gpt-3.5-turbo` for cost efficiency*
+
+### Configuration Options
+
+- **`apiKey`** - Your OpenAI API key (or other provider)
+- **`baseURL`** - API endpoint (change for different providers)
+- **`model`** - Model to use (e.g., `gpt-4`, `gpt-3.5-turbo`, `claude-3-sonnet`)
+- **`timeout`** - Request timeout in milliseconds
+- **`parallelism`** - Number of concurrent requests (be mindful of rate limits)
+
+### Using Different Providers
+
+For **Anthropic Claude:**
+
+```json
+{
+  "apiKey": "your-anthropic-api-key",
+  "baseURL": "https://api.anthropic.com/v1",
+  "model": "claude-3-sonnet-20240229"
+}
+```
+
+For **Azure OpenAI:**
+
+```json
+{
+  "apiKey": "your-azure-api-key",
+  "baseURL": "https://your-resource.openai.azure.com/openai/deployments/your-deployment",
+  "model": "gpt-4"
+}
+```
+
+### LLM Setup Best Practices
+
+- **Keep `llms.json` secure** - Never commit it to version control (it's in `.gitignore`)
+- **Use environment variables** for API keys in production environments
+- **Monitor costs** - Adjust `parallelism` and model choices based on your budget
+- **Test with cheaper models first** - Use `gpt-3.5-turbo` for initial testing, upgrade to `gpt-4` for final optimization
 
 ### Understanding the Configuration Structure
 
@@ -324,6 +413,63 @@ done
 - `target_system_prompt.txt`: Your optimized system prompt
 - `corrections/`: Detailed failure analysis and corrections
 - `logs/`: Execution logs and debug information
+
+### Logging System
+
+Vibotron provides comprehensive logging to help you understand execution flow and debug issues:
+
+#### Log Files Location
+
+All logs are stored in the `logs_directory` specified in your workspace.json:
+
+```text
+output/logs/
+├── combined.log     # All log messages (info, warnings, errors)
+├── error.log        # Error messages only
+├── exceptions.log   # Unhandled exceptions and stack traces
+└── rejections.log   # Promise rejections and async errors
+```
+
+#### Log Levels and Content
+
+**Combined Log** - Complete execution trace:
+
+- Command start/completion timestamps
+- File operations (read, write, delete)
+- LLM API calls and responses
+- Progress updates and status messages
+- Performance metrics
+
+**Error Log** - Focused troubleshooting:
+
+- Configuration validation errors
+- Missing file or directory issues
+- LLM API failures and rate limiting
+- Invalid JSON or file format errors
+- Permission and filesystem errors
+
+**Exceptions Log** - Technical debugging:
+
+- Stack traces for crashes
+- Unhandled promise rejections
+- Code-level debugging information
+
+#### Using Logs for Debugging
+
+**Common Debugging Scenarios:**
+
+1. **Pipeline failures** → Check `error.log` for specific error messages
+2. **Slow performance** → Check `combined.log` for timing information
+3. **LLM issues** → Look for API call logs and rate limiting messages
+4. **File not found errors** → Verify paths in configuration section of logs
+5. **Unexpected crashes** → Review `exceptions.log` for stack traces
+
+**Log Analysis Tips:**
+
+- Each command execution starts with a header: `==== Starting [command] command ====`
+- Timestamps help identify timing issues between operations
+- Search for "ERROR" or "WARN" to quickly find issues
+- LLM API calls show token usage and model responses
 
 ## Best Practices
 
