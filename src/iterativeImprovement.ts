@@ -3,6 +3,7 @@ import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 import { generateTargetSystemPrompt } from "./generateTargetSystemPrompt";
 import { evaluateSyntheticUserPromptResponses } from "./evaluateSyntheticUserPromptResponses";
+import { generateSyntheticUserPromptResponses } from "./generateSyntheticUserPromptResponses";
 import { readTextFile } from "./fileUtils";
 import { logger } from "./initLogger";
 
@@ -56,8 +57,10 @@ export async function runIterativeImprovement(
   try {
     const targetSystemPromptFile = config.output?.target_system_prompt_file;
     const correctionsDir = config.output?.corrections_directory;
+    const responsesDir =
+      config.output?.synthetic_user_prompts_responses_directory;
 
-    if (!targetSystemPromptFile || !correctionsDir) {
+    if (!targetSystemPromptFile || !correctionsDir || !responsesDir) {
       logger.error(
         "Missing required configuration paths for iterative improvement"
       );
@@ -81,12 +84,32 @@ export async function runIterativeImprovement(
       console.log("📋 Using existing target system prompt");
     }
 
+    // Step 2: Ensure synthetic user prompt responses exist
+    const responseFiles = existsSync(responsesDir)
+      ? readdirSync(responsesDir).filter((f) => f.endsWith(".txt"))
+      : [];
+    if (responseFiles.length === 0) {
+      console.log(
+        "📝 No synthetic user prompt responses found, generating them..."
+      );
+      const gsuprSuccess = await generateSyntheticUserPromptResponses(config);
+      if (!gsuprSuccess) {
+        console.error("❌ Failed to generate synthetic user prompt responses");
+        return false;
+      }
+      console.log("✅ Synthetic user prompt responses generated");
+    } else {
+      console.log(
+        `📋 Using existing ${responseFiles.length} synthetic user prompt responses`
+      );
+    }
+
     // Iterative improvement loop
     while (currentIteration < maxIterations) {
       currentIteration++;
       console.log(`\n🔄 Iteration ${currentIteration}/${maxIterations}`);
 
-      // Step 2: Run evaluation
+      // Step 3: Run evaluation (always run fresh evaluation each iteration)
       console.log(
         "🔍 Running evaluation of synthetic user prompt responses..."
       );
@@ -96,7 +119,7 @@ export async function runIterativeImprovement(
         return false;
       }
 
-      // Step 3: Check for failures
+      // Step 4: Check for failures
       const failureCount = await countEvaluationFailures(correctionsDir);
       const totalEvaluations = await countTotalEvaluations(correctionsDir);
 
@@ -114,7 +137,7 @@ export async function runIterativeImprovement(
 
       console.log(`⚠️  Found ${failureCount} evaluation failures`);
 
-      // Step 4: Check if we have more iterations
+      // Step 5: Check if we have more iterations
       if (currentIteration >= maxIterations) {
         console.log(`🛑 Reached maximum iterations (${maxIterations})`);
         console.log(
@@ -128,7 +151,7 @@ export async function runIterativeImprovement(
         return true; // Still consider success, just didn't achieve perfect score
       }
 
-      // Step 5: Regenerate target system prompt with corrections
+      // Step 6: Regenerate target system prompt with corrections
       console.log(
         "🔧 Regenerating target system prompt using failure corrections..."
       );
