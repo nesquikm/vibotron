@@ -6,15 +6,37 @@ export function loadConfigFile(program: Command) {
   // Load config file after parsing arguments
   const options = program.opts();
   const configPath = options.config;
-  const configData = JSON.parse(readFileSync(configPath, "utf8"));
 
-  // Get the directory of the config file
-  const configDir = dirname(resolve(configPath));
+  try {
+    // Check if config file exists
+    if (!configPath) {
+      console.error("Error: No config file path specified");
+      process.exit(1);
+    }
 
-  // Resolve all paths in the config relative to the config file location
-  const resolvedConfig = resolveConfigPaths(configData, configDir);
+    const configData = JSON.parse(readFileSync(configPath, "utf8"));
 
-  return resolvedConfig;
+    // Get the directory of the config file
+    const configDir = dirname(resolve(configPath));
+
+    // Resolve all paths in the config relative to the config file location
+    const resolvedConfig = resolveConfigPaths(configData, configDir);
+
+    return resolvedConfig;
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      console.error(`Error: Config file not found: ${configPath}`);
+      console.error("Please check the file path and try again.");
+    } else if (error instanceof SyntaxError) {
+      console.error(`Error: Invalid JSON in config file: ${configPath}`);
+      console.error("Please check the JSON syntax and try again.");
+      console.error(`Details: ${error.message}`);
+    } else {
+      console.error(`Error: Failed to load config file: ${configPath}`);
+      console.error(`Details: ${error.message}`);
+    }
+    process.exit(1);
+  }
 }
 
 function resolveConfigPaths(config: any, configDir: string): any {
