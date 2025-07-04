@@ -59,13 +59,50 @@ export async function runIterativeImprovement(
     const correctionsDir = config.output?.corrections_directory;
     const responsesDir =
       config.output?.synthetic_user_prompts_responses_directory;
+    const rulesAllFile = config.output?.rules_all_file;
+    const syntheticPromptsDir = config.output?.synthetic_user_prompts_directory;
 
-    if (!targetSystemPromptFile || !correctionsDir || !responsesDir) {
+    if (
+      !targetSystemPromptFile ||
+      !correctionsDir ||
+      !responsesDir ||
+      !rulesAllFile ||
+      !syntheticPromptsDir
+    ) {
       logger.error(
         "Missing required configuration paths for iterative improvement"
       );
       return false;
     }
+
+    // Check prerequisites: rules all file must exist (from grp command)
+    if (!existsSync(rulesAllFile)) {
+      console.error(
+        "❌ Rules all file does not exist. Please run 'grp' command first:"
+      );
+      console.error("   yarn start -c workspace.json grp");
+      logger.error(`Rules all file does not exist: ${rulesAllFile}`);
+      return false;
+    }
+
+    // Check prerequisites: synthetic user prompts must exist (from gsup command)
+    const syntheticPromptFiles = existsSync(syntheticPromptsDir)
+      ? readdirSync(syntheticPromptsDir).filter((f) => f.endsWith(".txt"))
+      : [];
+    if (syntheticPromptFiles.length === 0) {
+      console.error(
+        "❌ No synthetic user prompts found. Please run 'gsup' command first:"
+      );
+      console.error("   yarn start -c workspace.json gsup");
+      logger.error(
+        `No synthetic user prompts found in: ${syntheticPromptsDir}`
+      );
+      return false;
+    }
+
+    console.log(
+      `📋 Found ${syntheticPromptFiles.length} synthetic user prompts`
+    );
 
     let currentIteration = 0;
 
