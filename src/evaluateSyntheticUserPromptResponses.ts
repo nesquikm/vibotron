@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { readdirSync, existsSync, mkdirSync, rmSync } from "fs";
-import { join, basename } from "path";
+import { join } from "path";
 import { readTextFile, writeTextFile } from "./fileUtils";
 import { callLLM, getLLMConfig } from "./llmClients";
 import { logger } from "./initLogger";
@@ -139,7 +139,7 @@ export async function evaluateSyntheticUserPromptResponses(
       const outputPath = join(correctionsDir, responseFile);
 
       // Extract permutation name from response filename (remove _N.txt suffix)
-      const baseNameMatch = responseFile.match(/^(.+)_\d+\.txt$/);
+      const baseNameMatch = /^(.+)_\d+\.txt$/.exec(responseFile);
       if (!baseNameMatch) {
         logger.warn(
           `Cannot parse permutation name from response file: ${responseFile} - skipping`
