@@ -5,6 +5,7 @@ import { generateTargetSystemPromptCommand } from "./generateTargetSystemPrompt"
 import { generateSyntheticUserPromptResponsesCommand } from "./generateSyntheticUserPromptResponses";
 import { evaluateSyntheticUserPromptResponsesCommand } from "./evaluateSyntheticUserPromptResponses";
 import { cleanOutputCommand } from "./cleanOutput";
+import { iterativeImprovementCommand } from "./iterativeImprovement";
 import { loadConfigFile } from "./loadConfigFile";
 import { logger, addFileTransports } from "./initLogger";
 import { initializeLLMClients } from "./llmClients";
@@ -46,6 +47,7 @@ generateSyntheticUserPromptsCommand(program, loadAndInitializeConfig);
 generateSyntheticUserPromptResponsesCommand(program, loadAndInitializeConfig);
 evaluateSyntheticUserPromptResponsesCommand(program, loadAndInitializeConfig);
 generateTargetSystemPromptCommand(program, loadAndInitializeConfig);
+iterativeImprovementCommand(program, loadAndInitializeConfig);
 cleanOutputCommand(program, loadAndInitializeConfig);
 
 // Parse arguments
